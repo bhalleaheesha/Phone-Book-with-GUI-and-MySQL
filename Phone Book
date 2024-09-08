@@ -1,0 +1,67 @@
+import mysql.connector
+myconn=mysql.connector.connect(host='localhost',port='3306',user='root',password='root1234',database='5Square')
+cur=myconn.cursor()
+dbs=cur.execute('create table if not exists Phonebook(UserId VARCHAR(20) NOT NULL, Password VARCHAR(20) NOT NULL )')
+import tkinter as tk
+from tkinter import ttk
+from tkinter import *
+import tkinter.messagebox as box
+import pickle
+root=tk.Tk()
+root.geometry('350x350')
+root.title('Phone Book')
+root.columnconfigure(0,weight=4)
+root.columnconfigure(2,weight=4)
+labuser=ttk.Label(root,text='User id :')
+labuser.grid(column=0,row=0,sticky=tk.W,padx=10,pady=10)
+user=ttk.Entry(root)
+user.grid(column=1,row=0,sticky=tk.E,padx=10,pady=10)
+
+labpass=ttk.Label(root,text='Password :')
+labpass.grid(column=0,row=1,sticky=tk.W,padx=10,pady=10)
+pas=ttk.Entry(root,show='*')
+pas.grid(column=1,row=1,sticky=tk.E,padx=10,pady=10)
+
+def d():
+    file=open('text.txt','rb')
+    data=pickle.load(file)
+    file.close()
+    #data={}
+    file=open('text.txt','wb+')
+    data.update({user.get():pas.get()})
+    pickle.dump(data,file)
+    file.close()
+    sql='insert into Phonebook(UserId,Password) values (%s,%s)'
+    val=(user.get(),pas.get())
+    cur.execute(sql,val)
+    myconn.commit()
+def search():  
+    file=open('text.txt','rb')
+    data=pickle.load(file)
+    #print(data)
+    file.close()
+    for i in data.items():
+        #print(i)
+        if i[0]==suser.get():
+            print(i)
+            print('Welcome Back!')
+            break
+    else:
+            print('User id, not found')
+    #print(data)
+     
+login=ttk.Button(root,text='Login',command=d)
+login.grid(column=1,row=2,sticky=tk.E,padx=10,pady=10)
+
+labeluser=ttk.Label(root,text='User id :')
+labeluser.grid(column=0,row=3,sticky=tk.W,padx=10,pady=10)
+suser=ttk.Entry(root)
+suser.grid(column=1,row=3,sticky=tk.E,padx=10,pady=10)
+
+search=ttk.Button(root,text='Search',command=search)
+search.grid(column=1,row=4,sticky=tk.E,padx=10,pady=10)
+
+root.mainloop()
+
+print(cur.rowcount,'records inserted')
+myconn.close()
